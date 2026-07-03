@@ -1,0 +1,39 @@
+name: 'Argos'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+  # Argos authenticates via GitHub OIDC: no ARGOS_TOKEN secret needed.
+  id-token: write
+
+concurrency:
+  group: argos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  argos:
+    name: Run Argos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: ./.github/action/setup-node
+
+      - name: Build Slash Storybook
+        run: npm run build:distributeur -- --force
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture stories & upload to Argos
+        run: npx playwright test --config=argos/playwright.config.ts

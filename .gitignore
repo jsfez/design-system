@@ -10,3 +10,7 @@ dist/
 coverage/
 .turbo
 mise.toml
+# Argos demo
+screenshots/
+test-results/
+playwright-report/
